@@ -70,7 +70,7 @@ def get_api_answer(current_timestamp):
 
 def check_response(response):
     """Проверяет ответ на корректность."""
-    homeworks = response.get('homeworks')
+    homeworks = response['homeworks']
     if not homeworks:
         logger.error('задание отсутствует')
     for homework in homeworks:
@@ -94,7 +94,7 @@ def parse_status(homework):
         logger.error(error_message)
         raise Exception(error_message)
     logger.info(f'итоговый результат: {verdict}')
-    return f'Изменился статус проверки работы {homework_name}. {verdict}'
+    return f'Изменился статус проверки работы "{homework_name}". {verdict}'
 
 
 def check_tokens():
