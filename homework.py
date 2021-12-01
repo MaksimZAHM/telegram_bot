@@ -78,22 +78,24 @@ def check_response(response):
         if status in HOMEWORK_STATUSES:
             return homework
         else:
-            logger.error('Словаре отсутствует ключ "homeworks"')
-            raise Exception('Словаре отсутствует ключ "homeworks"')
+            error_message = 'В словаре отсутствует ключ "homeworks"'
+            logger.error(error_message)
+            raise Exception(error_message)
     return []
 
 
 def parse_status(homework):
     """Готовит ответ об измненении статуса."""
-    verdict = HOMEWORK_STATUSES[homework['status']]
     homework_name = homework.get('homework_name')
-    if not homework_name:
-        raise Exception('нет имени задания')
-    if not verdict:
-        raise Exception('нет результата')
+    homework_status = homework.get('status')
+    verdict = HOMEWORK_STATUSES[homework_status]
+    if verdict is None:
+        error_message = 'Неизвестный статус домашки'
+        logger.error(error_message)
+        raise Exception(error_message)
     logger.info(f'итоговый результат: {verdict}')
     return f'Изменился статус проверки работы “{homework_name}“. {verdict}'
-
+    
 
 def check_tokens():
     """Проверяет наличие токенов."""
