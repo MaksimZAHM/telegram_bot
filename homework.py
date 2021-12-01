@@ -68,9 +68,10 @@ def get_api_answer(current_timestamp):
         )
 
 
-def check_response(response):
+def check_response(response, current_timestamp):
     """Проверяет ответ на корректность."""
-    params = {'from_date': 0}
+    timestamp = current_timestamp or int(time.time())
+    params = {'from_date': timestamp}
     try:
         response = requests.get(
             ENDPOINT,
@@ -115,7 +116,7 @@ def main():
     while True:
         try:
             response = get_api_answer(current_timestamp)
-            response_checked = check_response(response)
+            response_checked = check_response(response, current_timestamp)
             if response_checked:
                 message = parse_status(response_checked)
                 send_message(bot, message)
