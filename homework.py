@@ -56,7 +56,7 @@ def get_api_answer(current_timestamp):
             headers=HEADERS,
             params=params
         )
-        if homework_statuses.raise_for_status() != 200:
+        if homework_statuses.status_code != 200:
             logging.error('Ошибка API')
             raise Exception('Эндпоинт недоступен')
         return homework_statuses.json()
