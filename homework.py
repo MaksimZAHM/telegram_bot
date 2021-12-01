@@ -68,24 +68,20 @@ def get_api_answer(current_timestamp):
         )
 
 
-def check_response(response, current_timestamp):
+def check_response(response):
     """Проверяет ответ на корректность."""
-    timestamp = current_timestamp or int(time.time())
-    params = {'from_date': timestamp}
-    try:
-        response = requests.get(
-            ENDPOINT,
-            headers=HEADERS,
-            params=params
-        ).json()
-    except TypeError as error:
-        if not response:
-            print(f'Словарь пустой {error}')
-    except KeyError as error:
-        if response.get('homeworks') not in response:
-            print(f'Словаре отсутствует ключ "homeworks" {error}')
-    else:
-        return (response.get('homeworks'))
+    homeworks = response['homeworks']
+    if not homeworks:
+        logger.error('задание отсутствует')
+    for homework in homeworks:
+        status = homework.get('status')
+        if status in HOMEWORK_STATUSES:
+            return homework
+        else:
+            error_message = 'В словаре отсутствует ключ "homeworks"'
+            logger.error(error_message)
+            raise Exception(error_message)
+    return []
 
 
 def parse_status(homework):
@@ -116,7 +112,7 @@ def main():
     while True:
         try:
             response = get_api_answer(current_timestamp)
-            response_checked = check_response(response, current_timestamp)
+            response_checked = check_response(response)
             if response_checked:
                 message = parse_status(response_checked)
                 send_message(bot, message)
