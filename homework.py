@@ -70,7 +70,7 @@ def get_api_answer(current_timestamp):
 
 def check_response(response):
     """Проверяет ответ на корректность."""
-    homeworks = response.get('homeworks')
+    homeworks = response['homeworks']
     if not homeworks:
         logger.error('задание отсутствует')
     for homework in homeworks:
