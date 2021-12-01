@@ -70,18 +70,21 @@ def get_api_answer(current_timestamp):
 
 def check_response(response):
     """Проверяет ответ на корректность."""
-    homeworks = response['homeworks']
-    if not homeworks:
-        logger.error('задание отсутствует')
-    for homework in homeworks:
-        status = homework.get('status')
-        if status in HOMEWORK_STATUSES:
-            return homework
-        else:
-            error_message = 'В словаре отсутствует ключ "homeworks"'
-            logger.error(error_message)
-            raise Exception(error_message)
-    return []
+    params = {'from_date': 0}
+    try:
+        response = requests.get(
+            ENDPOINT,
+            headers=HEADERS,
+            params=params
+        ).json()
+    except TypeError as error:
+        if not response:
+            print(f'Словарь пустой {error}')
+    except KeyError as error:
+        if response.get('homeworks') not in response:
+            print(f'Словаре отсутствует ключ "homeworks" {error}')
+    else:
+        return (response.get('homeworks'))
 
 
 def parse_status(homework):
