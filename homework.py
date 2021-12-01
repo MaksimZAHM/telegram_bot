@@ -95,7 +95,7 @@ def parse_status(homework):
         raise Exception(error_message)
     logger.info(f'итоговый результат: {verdict}')
     return f'Изменился статус проверки работы “{homework_name}“. {verdict}'
-    
+
 
 def check_tokens():
     """Проверяет наличие токенов."""
