@@ -4,7 +4,6 @@ import logging
 import sys
 import time
 
-from logging.handlers import StreamHandler
 from telegram import Bot
 from dotenv import load_dotenv
 
@@ -28,7 +27,7 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-handler = StreamHandler(sys.stdout)
+handler = logging.StreamHandler(sys.stdout)
 logger.addHandler(handler)
 
 HOMEWORK_STATUSES = {
