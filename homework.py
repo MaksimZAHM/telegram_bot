@@ -48,7 +48,8 @@ def send_message(bot, message):
 
 def get_api_answer(current_timestamp):
     """Получает ответ от API об изменениях домашней работы."""
-    timestamp = current_timestamp or int(time.time())
+    #timestamp = current_timestamp or int(time.time())
+    timestamp = 0
     params = {'from_date': timestamp}
     try:
         homework_statuses = requests.get(
