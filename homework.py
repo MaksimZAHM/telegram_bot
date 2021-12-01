@@ -1,6 +1,7 @@
 import requests
 import os
-import logging, sys
+import logging
+import sys
 import time
 
 from logging.handlers import StreamHandler
@@ -23,7 +24,7 @@ logging.basicConfig(
     level=logging.DEBUG,
     filename='main.log',
     filemode='w'
-    )
+)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -45,6 +46,7 @@ def send_message(bot, message):
     except Exception as error:
         logger.error(f'Ошибка при отправке сообщения. {error}')
 
+
 def get_api_answer(current_timestamp):
     """Получает ответ от API об изменениях домашней работы."""
     timestamp = current_timestamp or int(time.time())
@@ -65,6 +67,7 @@ def get_api_answer(current_timestamp):
             error_message,
             exc_info=True
         )
+
 
 def check_response(response):
     """Проверяет если есть обновление, возвращает библиотеку."""
@@ -111,27 +114,21 @@ def main():
         sys.exit()
     bot = Bot(token=TELEGRAM_TOKEN)
     current_timestamp = int(time.time())
-    previous_response = ""
     while True:
         try:
             response = get_api_answer(current_timestamp)
             response_checked = check_response(response)
-            if response != previous_response:
-                previous_response = response
+            if response_checked:
                 message = parse_status(response_checked)
                 send_message(bot, message)
-            else:
-                logger.debug('Статус без обновлений')
-
-            current_timestamp = int(time.time())
             time.sleep(RETRY_TIME)
-
+            current_timestamp = response.get('current_date')
         except Exception as error:
-            if previous_error != error:
-                previous_error = error
-                error_message = f'Сбой в работе программы: {error}'
-                logging.error(error_message)
-                send_message(bot, error_message)
+            message = f'Сбой в работе программы: {error}'
+            if errors:
+                errors = True
+                send_message(bot, message)
+            logging.error(message, exc_info=True)
             time.sleep(RETRY_TIME)
 
 
