@@ -114,6 +114,7 @@ def main():
         sys.exit()
     bot = Bot(token=TELEGRAM_TOKEN)
     current_timestamp = int(time.time())
+    errors = True
     while True:
         try:
             response = get_api_answer(current_timestamp)
