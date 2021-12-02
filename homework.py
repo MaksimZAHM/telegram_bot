@@ -3,8 +3,7 @@ import os
 import logging
 import sys
 import time
-
-from telegram import Bot
+import telegram
 from dotenv import load_dotenv
 
 load_dotenv()
