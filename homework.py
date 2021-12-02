@@ -86,8 +86,17 @@ def check_response(response):
 
 def parse_status(homework):
     """Готовит ответ об измненении статуса."""
-    homework_name = homework.get('homework_name')
-    homework_status = homework.get('status')
+    try:
+        homework_name = homework.get('homework_name')
+    except KeyError as error:
+        error_message = f'Ошибка доступа по ключу homework_name: {error}'
+        logger.error(error_message)
+    try:
+        homework_status = homework.get('status')
+    except KeyError as error:
+        error_message = f'Ошибка доступа по ключу status: {error}'
+        logger.error(error_message)
+
     verdict = HOMEWORK_STATUSES[homework_status]
     if verdict is None:
         error_message = 'Неизвестный статус домашки'
