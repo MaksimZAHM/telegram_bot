@@ -69,6 +69,28 @@ def get_api_answer(current_timestamp):
 
 def check_response(response):
     """Проверяет ответ на корректность."""
+    try:
+        homeworks_list = response['homeworks']
+    except KeyError as error:
+        error_message = f'Ошибка доступа по ключу homeworks: {error}'
+        logger.error(error_message)
+        raise Exception(error_message)
+    if homeworks_list is None:
+        error_message = 'В ответе API нет словаря с домашками'
+        logger.error(error_message)
+        raise Exception(error_message)
+    if len(homeworks_list) == 0:
+        error_message = 'За последнее время нет домашек'
+        logger.error(error_message)
+        raise Exception(error_message)
+    if not isinstance(homeworks_list, list):
+        error_message = 'В ответе API домашки представлены не списком'
+        logger.error(error_message)
+        raise Exception(error_message)
+    return homeworks_list
+
+
+
     homeworks = response['homeworks']
     if not homeworks:
         logger.error('задание отсутствует')
