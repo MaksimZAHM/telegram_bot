@@ -90,21 +90,6 @@ def check_response(response):
     return homeworks_list
 
 
-
-    homeworks = response['homeworks']
-    if not homeworks:
-        logger.error('задание отсутствует')
-    for homework in homeworks:
-        status = homework.get('status')
-        if status in HOMEWORK_STATUSES:
-            return homework
-        else:
-            error_message = 'В словаре отсутствует ключ "homeworks"'
-            logger.error(error_message)
-            raise Exception(error_message)
-    return []
-
-
 def parse_status(homework):
     """Готовит ответ об измненении статуса."""
     try:
