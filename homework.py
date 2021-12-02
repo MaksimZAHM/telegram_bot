@@ -4,6 +4,7 @@ import logging
 import sys
 import time
 import telegram
+from http import HTTPStatus
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -25,7 +26,6 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 handler = logging.StreamHandler(sys.stdout)
 logger.addHandler(handler)
 
@@ -47,7 +47,7 @@ def send_message(bot, message):
 
 def get_api_answer(current_timestamp):
     """Получает ответ от API об изменениях домашней работы."""
-    timestamp = current_timestamp or int(time.time())
+    timestamp = current_timestamp
     params = {'from_date': timestamp}
     try:
         homework_statuses = requests.get(
@@ -55,7 +55,7 @@ def get_api_answer(current_timestamp):
             headers=HEADERS,
             params=params
         )
-        if homework_statuses.status_code != 200:
+        if homework_statuses.status_code != HTTPStatus.OK:
             logging.error('Ошибка API')
             raise Exception('Эндпоинт недоступен')
         return homework_statuses.json()
@@ -113,9 +113,11 @@ def check_tokens():
 def main():
     """Основная логика работы бота."""
     if not check_tokens():
-        sys.exit()
+        error_message = 'Отсутствует необходимая переменная среды'
+        logger.critical(error_message)
+        raise Exception(error_message)
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
-    current_timestamp = int(time.time())
+    current_timestamp = int(time.time() - 604800)
     errors = True
     while True:
         try:
