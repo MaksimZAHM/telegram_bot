@@ -118,22 +118,36 @@ def main():
         raise Exception(error_message)
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
     current_timestamp = int(time.time() - 604800)
-    errors = True
+    previous_status = None
+    previous_error = None
     while True:
         try:
             response = get_api_answer(current_timestamp)
-            response_checked = check_response(response)
-            if response_checked:
-                message = parse_status(response_checked)
-                send_message(bot, message)
+        except Exception as error:
+            if str(error) != previous_error:
+                previous_error = str(error)
+                send_message(bot, error)
+            logging.error(error)
             time.sleep(RETRY_TIME)
-            current_timestamp = response.get('current_date')
+            continue
+        try:
+            homeworks = check_response(response)
+            hw_status = homeworks[0].get('status')
+            if hw_status != previous_status:
+                previous_status = hw_status
+                message = parse_status(homeworks[0])
+                send_message(bot, message)
+            else:
+                logger.debug('Обновления статуса нет')
+
+            time.sleep(RETRY_TIME)
+
         except Exception as error:
             message = f'Сбой в работе программы: {error}'
-            if errors:
-                errors = True
+            if previous_error != str(error):
+                previous_error = str(error)
                 send_message(bot, message)
-            logging.error(message, exc_info=True)
+            logger.error(message)
             time.sleep(RETRY_TIME)
 
 
