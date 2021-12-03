@@ -11,12 +11,13 @@ load_dotenv()
 
 
 PRACTICUM_TOKEN = os.getenv('PRACTICUM_TOKEN')
+PRACTICUM_HEADERS = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 
+ONE_WEEK = 604800
 RETRY_TIME = 600
 ENDPOINT = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
-HEADERS = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
 
 logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s - %(name)s',
@@ -52,7 +53,7 @@ def get_api_answer(current_timestamp):
     try:
         homework_statuses = requests.get(
             ENDPOINT,
-            headers=HEADERS,
+            headers=PRACTICUM_HEADERS,
             params=params
         )
         if homework_statuses.status_code != HTTPStatus.OK:
@@ -92,20 +93,22 @@ def check_response(response):
 
 def parse_status(homework):
     """Готовит ответ об измненении статуса."""
-    try:
-        homework_name = homework.get('homework_name')
-    except KeyError as error:
-        error_message = f'Ошибка доступа по ключу homework_name: {error}'
+    homework_name = homework.get('homework_name')
+    if homework_name is None:
+        error_message = 'Ошибка доступа по ключу homework_name'
         logger.error(error_message)
-    try:
-        homework_status = homework.get('status')
-    except KeyError as error:
-        error_message = f'Ошибка доступа по ключу status: {error}'
-        logger.error(error_message)
+        raise Exception(error_message)
 
-    verdict = HOMEWORK_STATUSES[homework_status]
-    if verdict is None:
-        error_message = 'Неизвестный статус домашки'
+    homework_status = homework.get('status')
+    if homework_status is None:
+        error_message = 'Ошибка доступа по ключу status'
+        logger.error(error_message)
+        raise Exception(error_message)
+
+    try:
+        verdict = HOMEWORK_STATUSES[homework_status]
+    except KeyError as error:
+        error_message = f'Неизвестный статус домашки: {error}'
         logger.error(error_message)
         raise Exception(error_message)
     logger.info(f'итоговый результат: {verdict}')
@@ -124,7 +127,7 @@ def main():
         logger.critical(error_message)
         raise Exception(error_message)
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
-    current_timestamp = int(time.time() - 604800)
+    current_timestamp = int(time.time() - ONE_WEEK)
     previous_status = None
     previous_error = None
     while True:
