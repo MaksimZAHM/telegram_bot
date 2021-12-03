@@ -96,10 +96,9 @@ def parse_status(homework):
     homework_name = homework.get('homework_name')
     homework_status = homework.get('status')
 
-    try:
-        verdict = HOMEWORK_STATUSES[homework_status]
-    except KeyError as error:
-        error_message = f'Неизвестный статус домашки: {error}'
+    verdict = HOMEWORK_STATUSES.get(homework_status)
+    if verdict is None:
+        error_message = 'Неизвестный статус домашки'
         logger.error(error_message)
         raise Exception(error_message)
     logger.info(f'итоговый результат: {verdict}')
